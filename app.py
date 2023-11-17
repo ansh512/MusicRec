@@ -60,7 +60,7 @@ def get_recommendations(input):
     kmeans = joblib.load('kmeans_model.joblib')
     new_element_cluster = kmeans.predict([input])
     
-    same_cluster_df = df[df['cluster_label_kmeans'].isin(new_element_cluster)].copy()  # Use copy() to avoid the warning
+    same_cluster_df = df[df['cluster_label_kmeans'].isin(new_element_cluster)].copy() 
 
     similarity_scores = cosine_similarity([input], same_cluster_df.iloc[:, 2:12].values)[0]
 

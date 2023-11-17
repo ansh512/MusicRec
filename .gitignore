@@ -10,8 +10,8 @@ firebase-debug.*.log*
 # Firebase cache
 .firebase/
 
-/venv/
-/my-react-app/
+venv/
+my-react-app/
 
 # Firebase config
 
@@ -48,10 +48,12 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+Client/node_modules/
 
 # Optional npm cache directory
 .npm
+
+_pycache_/
 
 # Optional eslint cache
 .eslintcache
