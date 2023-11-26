@@ -6,17 +6,20 @@ import spotipy
 import pandas as pd
 from sklearn.cluster import KMeans
 import joblib
+import os
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.spatial.distance import euclidean
 from flask_cors import CORS
 from sklearn.preprocessing import StandardScaler
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
+load_dotenv()
 CORS(app)
 
-client_id = 'c37c514dd8744f02aa005e01dd777410'
-client_secret = '3e1c5009620b4c7d92baf0bac2658043'
+client_id = os.environ.get('CLIENT_ID')
+client_secret = os.environ.get('CLIENT_SCERET')
 spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id, client_secret))
 
 auth_token = None
