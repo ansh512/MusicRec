@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+import numpy as np
 import requests
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
@@ -6,7 +7,9 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import joblib
 from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import euclidean
 from flask_cors import CORS
+from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 
@@ -16,9 +19,7 @@ client_id = 'c37c514dd8744f02aa005e01dd777410'
 client_secret = '3e1c5009620b4c7d92baf0bac2658043'
 spotify = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id, client_secret))
 
-kmeans = None
-
-import requests
+auth_token = None
 
 def search_track(auth_token, song_name, artist_name):
     search_url = "https://api.spotify.com/v1/search"
@@ -58,41 +59,33 @@ def get_album_artworks(auth_token, songs):
 def get_recommendations(input):
     df = pd.read_csv('labelled.csv')
     kmeans = joblib.load('kmeans_model.joblib')
-    new_element_cluster = kmeans.predict([input])
-    
-    same_cluster_df = df[df['cluster_label_kmeans'].isin(new_element_cluster)].copy() 
+    new_element_cluster = kmeans.predict(input)
 
-    similarity_scores = cosine_similarity([input], same_cluster_df.iloc[:, 2:12].values)[0]
+    print("new_element_Cluster", new_element_cluster)
 
-    same_cluster_df['cosine_similarity'] = similarity_scores
+    same_cluster_df = df[df['cluster_label_kmeans'].isin(new_element_cluster)].copy()
 
-    similar_elements_df = same_cluster_df.sort_values(by='cosine_similarity', ascending=False)
-    
-    top_7_similar_elements = similar_elements_df.iloc[1:10]  
-    
+    euclidean_distances = [euclidean(input.flatten(), x) for x in same_cluster_df.iloc[:, 0:10].values]
+
+    same_cluster_df['euclidean_similarity'] = euclidean_distances
+
+    similar_elements_df = same_cluster_df.sort_values(by='euclidean_similarity')
+
+    top_7_similar_elements = similar_elements_df.iloc[1:10]
+
     selected_features = ['song_title', 'artist']
     songs = top_7_similar_elements[selected_features].to_dict(orient='records')
-    
+
     return songs
 
-    
-@app.route('/')
-def train_model():
-    df = pd.read_csv('SongDataset.csv')
-    n_clusters = 5  
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    cluster_labels_kmeans = kmeans.fit_predict(df.iloc[:, 2:].values)
-
-    df['cluster_label_kmeans'] = cluster_labels_kmeans
-    joblib.dump(kmeans, 'kmeans_model.joblib')
-    df.to_csv('labelled.csv', index=False) 
-    return "WELCOME"
-       
 
 @app.route('/<song>/<artist>')
 def get_audio_features(song, artist):
+    global auth_token
+
     try:
-        auth_token = spotify.auth_manager.get_access_token(as_dict=False)
+        if auth_token is None:
+            auth_token = spotify.auth_manager.get_access_token(as_dict=False)
 
         headers = {'Authorization': f'Bearer {auth_token}'}
 
@@ -103,24 +96,28 @@ def get_audio_features(song, artist):
         if 'tracks' not in search_data:
             raise ValueError("Unexpected API response format")
 
-        first_track_id = search_data['tracks']['items'][0]['id']
+        if "tracks" in search_data and "items" in search_data["tracks"] and search_data["tracks"]["items"]:
+            track_id = search_data["tracks"]["items"][0]["id"]
+        else:
+            return None
 
-        audio_features = spotify.audio_features([first_track_id])[0]
-        
-        new_element = [
-            audio_features['acousticness'],
-            audio_features['danceability'],
-            audio_features['duration_ms'],
-            audio_features['energy'],
-            audio_features['instrumentalness'],
-            audio_features['liveness'],
-            audio_features['loudness'],
-            audio_features['speechiness'],
-            audio_features['tempo'],
-            audio_features['valence']
+        audio_features = spotify.audio_features([track_id])[0]
+
+        feature_names = [
+            'acousticness', 'danceability', 'duration_ms', 'energy',
+            'instrumentalness', 'liveness', 'loudness', 'speechiness',
+            'tempo', 'valence'
         ]
 
-        songs = get_recommendations(new_element)
+        new_element_dict = {feature: audio_features[feature] for feature in feature_names}
+
+        new_element_df = pd.DataFrame([new_element_dict])
+
+        scaler = joblib.load('scaler_model.joblib')
+
+        scaled_new_element = scaler.transform(new_element_df[feature_names])
+
+        songs = get_recommendations(scaled_new_element.reshape(1, -1))
 
         artworks = get_album_artworks(auth_token, songs)
 
@@ -136,7 +133,7 @@ def get_audio_features(song, artist):
 
     except Exception as error:
         print('Error:', error)
-        return 'Internal Server Error', 500 
+        return 'Internal Server Error', 500
 
 
 if __name__ == '__main__':
