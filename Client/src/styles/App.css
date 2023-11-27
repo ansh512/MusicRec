@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata:700');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
+
+a,
+a:hover,
+a:focus {
+	color: inherit;
+}
+
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	background: #c31432;
+	background: hsla(0, 5%, 5%, 1);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		right top,
+		from(hsla(0, 3%, 7%, 0.5)),
+		to(hsla(0, 5%, 5%, 1))
+	);
+	background: linear-gradient(30deg, #292b2c, 30%, #232526);
+	min-height: 100vh;
+	background-image: -moz-linear-gradient(
+		to right top,
+		hsla(0, 5%, 15%, 0.5),
+		hsla(0, 5%, 5%, 1)
+	);
+	background-repeat: no-repeat;
+	background-size: cover;
+	overflow-x: hidden;
+}
+
+.heading-container {
+	margin-top: 5vh;
+}
+.heading-recommend {
+	font-family: 'Open Sans';
+	font-weight: 700;
+	color: white;
+	font-size: 32px;
+	text-shadow: 0px 1px, 1px 0px, 1px 0px;
+	margin-left: 12vw;
+	letter-spacing: 2px;
+	text-align: left;
+}
+
+/* Add some media queries to make the heading responsive */
+@media screen and (max-width: 768px) {
+	.heading-recommend {
+		font-size: 24px;
+		margin-left: 5vw;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.heading-recommend {
+		font-size: 18px;
+		margin-left: 2vw;
+	}
+}
+
+.button-container input {
+	font-family: 'Nunito', sans-serif;
+	position: relative;
+	margin: auto;
+	width: 50px;
+	height: 50px;
+	outline: none;
+	border: none;
+	background: white;
+	color: black;
+	text-shadow: 0 0 10px white; 
+	padding: 0px 150px 0px 25px;
+	border-radius: 30px;
+	box-shadow: white, 0 20px 25px 0 rgba(0, 0, 0, 0.2);
+	transition: all 0.5s;
+	font-weight: bolder;
+	letter-spacing: 0.1em;
+}
+
+.button-container input::placeholder {
+	color: black;
+	opacity: 0.5;
+	font-weight: bolder;
+}  
+
+/* Add some hover effects to the input fields */
+.button-container input:hover {
+	transform: scale(1.05);
+	box-shadow: white, 0 25px 30px 0 rgba(0, 0, 0, 0.3);
+}
+
+.button-container input:focus {
+	transform: scale(1.1);
+	box-shadow: white, 0 30px 35px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Add a white background to the form container */
+.form-container {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 300px;
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+  }
+  /* Change the input fields to have a light gray border and a white background */
+input {
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	outline: none;
+	background: white;
+  }
+  /* Change the button to have a dark gray border and a white background */
+button {
+	padding: 10px;
+	background-color: white;
+	color: black;
+	border: 1px solid #333;
+	border-radius: 5px;
+	cursor: pointer;
+  }
+  
+  /* Add some hover effects to the button */
+  button:hover {
+	background-color: #f0f0f0;
+	border-color: #555;
+  }
+
+  .main {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+  }
+  
